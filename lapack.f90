@@ -1,3 +1,4 @@
+
 program lapack
 
   implicit none
@@ -31,7 +32,7 @@ program lapack
   LDB = N
   LDC = N
   call cpu_time(start_time)
-  do j = 1, 10000
+  do j = 1, 100000
      m1 = 1
      m2 = 2
      call DGEMM(TRANSA,TRANSB,M,N,K,BLAS_ALPHA,m1,LDA,m2,LDB,BLAS_BETA,m3,LDC)
@@ -43,7 +44,7 @@ program lapack
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   call cpu_time(start_time)
-  do j = 1, 1000
+  do j = 1, 0
      v1 = 1
      ! Set the matrix to something dense and nonsingular
      index = -1

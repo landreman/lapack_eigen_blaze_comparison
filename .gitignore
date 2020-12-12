@@ -1,0 +1,5 @@
+*.o
+*~
+*#
+lapack
+eigen_blaze

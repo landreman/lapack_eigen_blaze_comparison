@@ -48,29 +48,42 @@ else ifeq ($(CLUSTER),DRACO)
 
 else
   MY_HOST=macports
-  FC = gfortran-mp-8
-  EXTRA_COMPILE_FLAGS = -ffree-line-length-none -O2
-  EXTRA_LINK_FLAGS = -framework Accelerate
+  #FC = gfortran-mp-8
+  #CXX = g++-mp-8
+  FC = mpif90-mpich-gcc8
+  CXX = mpicxx-mpich-gcc8
+  EXTRA_F_COMPILE_FLAGS = -ffree-line-length-none -O2
+  EXTRA_F_LINK_FLAGS = -framework Accelerate
+  EXTRA_C_COMPILE_FLAGS = -O2
 endif
 
 
 .PHONY: all clean
 
-all: lapack
+all: lapack eigen_blaze
 
 lapack.o: lapack.f90
-	$(FC) $(EXTRA_COMPILE_FLAGS) -c $<
+	$(FC) $(EXTRA_F_COMPILE_FLAGS) -c $<
 
 lapack: lapack.o
-	$(FC) -o lapack lapack.o $(EXTRA_LINK_FLAGS)
+	$(FC) -o lapack lapack.o $(EXTRA_F_LINK_FLAGS)
+
+eigen_blaze.o: eigen_blaze.cpp
+	$(CXX) $(EXTRA_C_COMPILE_FLAGS) -I eigen -c $<
+
+eigen_blaze: eigen_blaze.o
+	$(CXX) -o eigen_blaze eigen_blaze.o $(EXTRA_C_LINK_FLAGS)
 
 clean:
-	rm -f *.o *.mod *.MOD *~ lapack *.a
+	rm -f *.o *.mod *.MOD *~ lapack eigen_blaze *.a
 
 test_make:
 	@echo MY_HOST is $(MY_HOST)
 	@echo HOSTNAME is $(HOSTNAME)
 	@echo MACHINE is $(MACHINE)
 	@echo FC is $(FC)
-	@echo EXTRA_COMPILE_FLAGS is $(EXTRA_COMPILE_FLAGS)
-	@echo EXTRA_LINK_FLAGS is $(EXTRA_LINK_FLAGS)
+	@echo CXX is $(CXX)
+	@echo EXTRA_F_COMPILE_FLAGS is $(EXTRA_F_COMPILE_FLAGS)
+	@echo EXTRA_F_LINK_FLAGS is $(EXTRA_F_LINK_FLAGS)
+	@echo EXTRA_C_COMPILE_FLAGS is $(EXTRA_C_COMPILE_FLAGS)
+	@echo EXTRA_C_LINK_FLAGS is $(EXTRA_C_LINK_FLAGS)
