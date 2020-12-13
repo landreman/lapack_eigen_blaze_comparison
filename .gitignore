@@ -1,5 +1,6 @@
 *.o
 *~
 *#
-lapack
-eigen_blaze
+time_lapack
+time_eigen
+time_blaze

@@ -60,22 +60,28 @@ endif
 
 .PHONY: all clean
 
-all: lapack eigen_blaze
+all: time_lapack time_eigen time_blaze
 
-lapack.o: lapack.f90
+time_lapack.o: time_lapack.f90
 	$(FC) $(EXTRA_F_COMPILE_FLAGS) -c $<
 
-lapack: lapack.o
-	$(FC) -o lapack lapack.o $(EXTRA_F_LINK_FLAGS)
+time_lapack: time_lapack.o
+	$(FC) -o time_lapack time_lapack.o $(EXTRA_F_LINK_FLAGS)
 
-eigen_blaze.o: eigen_blaze.cpp
+time_eigen.o: time_eigen.cpp
 	$(CXX) $(EXTRA_C_COMPILE_FLAGS) -I eigen -c $<
 
-eigen_blaze: eigen_blaze.o
-	$(CXX) -o eigen_blaze eigen_blaze.o $(EXTRA_C_LINK_FLAGS)
+time_eigen: time_eigen.o
+	$(CXX) -o time_eigen time_eigen.o $(EXTRA_C_LINK_FLAGS)
+
+time_blaze.o: time_blaze.cpp
+	$(CXX) $(EXTRA_C_COMPILE_FLAGS) -I blaze -c $<
+
+time_blaze: time_blaze.o
+	$(CXX) -o time_blaze time_blaze.o $(EXTRA_C_LINK_FLAGS)
 
 clean:
-	rm -f *.o *.mod *.MOD *~ lapack eigen_blaze *.a
+	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze *.a
 
 test_make:
 	@echo MY_HOST is $(MY_HOST)
