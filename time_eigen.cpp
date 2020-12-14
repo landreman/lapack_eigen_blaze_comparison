@@ -1,6 +1,8 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <stdexcept>
+#include <sstream>
 #include <Eigen/Dense>
 
 // For benchmark of the various linear solvers in Eigen see
@@ -14,11 +16,20 @@
 using namespace Eigen;
 
 int main(int argc, char* argv[]) {
-  std::cout << "Hello world!" << std::endl;
+  std::cout << "Usage: time_eigen N N_matmuls N_solves" << std::endl;
 
-  const int N = 51;
-  const int N_matmuls = 1;
-  const int N_solves = 20000;
+  if (argc != 4) {
+    throw std::runtime_error("The number of arguments must be 3.");
+  }
+
+  // Parse the command-line arguments:
+  std::stringstream arg1(argv[1]), arg2(argv[2]), arg3(argv[3]);
+  int N, N_matmuls, N_solves;
+  arg1 >> N;
+  arg2 >> N_matmuls;
+  arg3 >> N_solves;
+  std::cout << "Matrix size N: " << N << ", N_matmuls: " << N_matmuls <<
+    ", N_solves: " << N_solves << std::endl;
   
   MatrixXd m1(N, N);
   MatrixXd m2(N, N);
@@ -48,55 +59,54 @@ int main(int argc, char* argv[]) {
   VectorXd v1(N);
   VectorXd v2(N);
   int index, j1, j2;
-  start_time = std::clock();
-  start = std::chrono::steady_clock::now();
-  for(int j = 1; j <= N_solves; j++) {
-    v1 = VectorXd::Constant(N, 1.0);
-    index = -1;
-    for(j1 = 0; j1 < N; j1++) {
-      for(j2 = 0; j2 < N; j2++) {
-	m1(j2, j1) = (j1 + 1) - 1.3 * (j2 + 1) + index;
-	index++;
-      }
-      m1(j1, j1) = j1 + 1;
-    }
-    // std::cout << "Matrix:" << std::endl << m1 << std::endl;
-    v2 = m1.partialPivLu().solve(v1);
-  }
-  end_time = std::clock();
-  end = std::chrono::steady_clock::now();
-  elapsed = end - start;
-  std::cout << "Time for Eigen solves from chrono with partialPivLu:           "
-	    << elapsed.count() << std::endl;
-  std::cout << "Time for Eigen solves from ctime with partialPivLu (CPU time): "
-	    << double(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
-  // std::cout << "Solution of linear system:" << std::endl << v2 << std::endl;
-  
+  std::string algorithm;
+
   /////////////////////////////////////////////
 
-  start_time = std::clock();
-  start = std::chrono::steady_clock::now();
-  for(int j = 1; j <= N_solves; j++) {
-    v1 = VectorXd::Constant(N, 1.0);
-    index = -1;
-    for(j1 = 0; j1 < N; j1++) {
-      for(j2 = 0; j2 < N; j2++) {
-	m1(j2, j1) = (j1 + 1) - 1.3 * (j2 + 1) + index;
-	index++;
+  for (int j_alg = 0; j_alg < 4; j_alg++) {
+    start_time = std::clock();
+    start = std::chrono::steady_clock::now();
+    for(int j = 1; j <= N_solves; j++) {
+      v1 = VectorXd::Constant(N, 1.0);
+      index = -1;
+      for(j1 = 0; j1 < N; j1++) {
+	for(j2 = 0; j2 < N; j2++) {
+	  m1(j2, j1) = (j1 + 1) - 1.3 * (j2 + 1) + index;
+	  index++;
+	}
+	m1(j1, j1) = j1 + 1;
       }
-      m1(j1, j1) = j1 + 1;
+      // std::cout << "Matrix:" << std::endl << m1 << std::endl;
+      switch (j_alg) {
+      case 0:
+	v2 = m1.partialPivLu().solve(v1);
+	algorithm = "partialPivLu";
+	break;
+      case 1:
+	v2 = m1.householderQr().solve(v1);
+	algorithm = "householderQr";
+	break;
+      case 2:
+	v2 = m1.colPivHouseholderQr().solve(v1);
+	algorithm = "colPivHouseholderQr";
+	break;
+      case 3:
+	v2 = m1.completeOrthogonalDecomposition().solve(v1);
+	algorithm = "completeOrthogonalDecomposition";
+	break;
+      default:
+	throw std::runtime_error("Should not get here!");
+      }
     }
-    // std::cout << "Matrix:" << std::endl << m1 << std::endl;
-    v2 = m1.colPivHouseholderQr().solve(v1);
+    end_time = std::clock();
+    end = std::chrono::steady_clock::now();
+    elapsed = end - start;
+    std::cout << "Time for Eigen solves from chrono with " << algorithm << ":           "
+	      << elapsed.count() << std::endl;
+    std::cout << "Time for Eigen solves from ctime with " << algorithm << " (CPU time): "
+	      << double(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
+    // std::cout << "Solution of linear system:" << std::endl << v2 << std::endl;
   }
-  end_time = std::clock();
-  end = std::chrono::steady_clock::now();
-  elapsed = end - start;
-  std::cout << "Time for Eigen solves from chrono with colPivHouseholderQr:           "
-	    << elapsed.count() << std::endl;
-  std::cout << "Time for Eigen solves from ctime with colPivHouseholderQr (CPU time): "
-	    << double(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
-  // std::cout << "Solution of linear system:" << std::endl << v2 << std::endl;
   
   return 0;
 }
