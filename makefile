@@ -52,9 +52,12 @@ else
   #CXX = g++-mp-8
   FC = mpif90-mpich-gcc8
   CXX = mpicxx-mpich-gcc8
-  EXTRA_F_COMPILE_FLAGS = -ffree-line-length-none -O2
-  EXTRA_F_LINK_FLAGS = -framework Accelerate
-  EXTRA_C_COMPILE_FLAGS = -O2
+  EXTRA_LAPACK_COMPILE_FLAGS = -ffree-line-length-none -O2
+  EXTRA_LAPACK_LINK_FLAGS = -framework Accelerate
+  EXTRA_EIGEN_COMPILE_FLAGS = -O2
+  EXTRA_EIGEN_LINK_FLAGS =
+  EXTRA_BLAZE_COMPILE_FLAGS = -O2
+  EXTRA_BLAZE_LINK_FLAGS = -framework Accelerate
 endif
 
 
@@ -63,22 +66,22 @@ endif
 all: time_lapack time_eigen time_blaze
 
 time_lapack.o: time_lapack.f90
-	$(FC) $(EXTRA_F_COMPILE_FLAGS) -c $<
+	$(FC) $(EXTRA_LAPACK_COMPILE_FLAGS) -c $<
 
 time_lapack: time_lapack.o
-	$(FC) -o time_lapack time_lapack.o $(EXTRA_F_LINK_FLAGS)
+	$(FC) -o time_lapack time_lapack.o $(EXTRA_LAPACK_LINK_FLAGS)
 
 time_eigen.o: time_eigen.cpp
-	$(CXX) $(EXTRA_C_COMPILE_FLAGS) -I eigen -c $<
+	$(CXX) $(EXTRA_EIGEN_COMPILE_FLAGS) -I eigen -c $<
 
 time_eigen: time_eigen.o
-	$(CXX) -o time_eigen time_eigen.o $(EXTRA_C_LINK_FLAGS)
+	$(CXX) -o time_eigen time_eigen.o $(EXTRA_EIGEN_LINK_FLAGS)
 
 time_blaze.o: time_blaze.cpp
-	$(CXX) $(EXTRA_C_COMPILE_FLAGS) -I blaze -c $<
+	$(CXX) $(EXTRA_BLAZE_COMPILE_FLAGS) -I blaze -c $<
 
 time_blaze: time_blaze.o
-	$(CXX) -o time_blaze time_blaze.o $(EXTRA_C_LINK_FLAGS)
+	$(CXX) -o time_blaze time_blaze.o $(EXTRA_BLAZE_LINK_FLAGS)
 
 clean:
 	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze *.a
@@ -89,7 +92,9 @@ test_make:
 	@echo MACHINE is $(MACHINE)
 	@echo FC is $(FC)
 	@echo CXX is $(CXX)
-	@echo EXTRA_F_COMPILE_FLAGS is $(EXTRA_F_COMPILE_FLAGS)
-	@echo EXTRA_F_LINK_FLAGS is $(EXTRA_F_LINK_FLAGS)
-	@echo EXTRA_C_COMPILE_FLAGS is $(EXTRA_C_COMPILE_FLAGS)
-	@echo EXTRA_C_LINK_FLAGS is $(EXTRA_C_LINK_FLAGS)
+	@echo EXTRA_LAPACK_COMPILE_FLAGS is $(EXTRA_LAPACK_COMPILE_FLAGS)
+	@echo EXTRA_LAPACK_LINK_FLAGS is $(EXTRA_LAPACK_LINK_FLAGS)
+	@echo EXTRA_EIGEN_COMPILE_FLAGS is $(EXTRA_EIGEN_COMPILE_FLAGS)
+	@echo EXTRA_EIGEN_LINK_FLAGS is $(EXTRA_EIGEN_LINK_FLAGS)
+	@echo EXTRA_BLAZE_COMPILE_FLAGS is $(EXTRA_BLAZE_COMPILE_FLAGS)
+	@echo EXTRA_BLAZE_LINK_FLAGS is $(EXTRA_BLAZE_LINK_FLAGS)

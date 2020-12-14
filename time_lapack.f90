@@ -84,7 +84,9 @@ program lapack
   call cpu_time(end_time)
 
   print *, "Elapsed time for LAPACK DGESV:", end_time - start_time
-  !print *, "Solution of linear system:"
-  !print *, v1
+  if (N <= 10) then
+     print *, "Solution of linear system:"
+     print *, v1
+  end if
   
 end program lapack

@@ -17,6 +17,7 @@ using namespace Eigen;
 
 int main(int argc, char* argv[]) {
   std::cout << "Usage: time_eigen N N_matmuls N_solves" << std::endl;
+  std::cout.precision(15);
 
   if (argc != 4) {
     throw std::runtime_error("The number of arguments must be 3.");
@@ -105,7 +106,9 @@ int main(int argc, char* argv[]) {
 	      << elapsed.count() << std::endl;
     std::cout << "Time for Eigen solves from ctime with " << algorithm << " (CPU time): "
 	      << double(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
-    // std::cout << "Solution of linear system:" << std::endl << v2 << std::endl;
+    if (N <= 10) {
+      std::cout << "Solution of linear system:" << std::endl << v2 << std::endl;
+    }
   }
   
   return 0;
