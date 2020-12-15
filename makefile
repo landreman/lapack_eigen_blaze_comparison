@@ -41,12 +41,14 @@ else ifeq ($(HOSTNAME),pppl_intel)
 else ifeq ($(CLUSTER),DRACO)
   MY_HOST=draco
   FC = mpiifort
-  CXX = icpc
+  CXX = mpiicpc
   #EXTRA_COMPILE_FLAGS =  -mkl -I${NETCDF_HOME}/include
   #EXTRA_LINK_FLAGS =   -mkl -Wl,-ydgemm_ -L${NETCDF_HOME}/lib -lnetcdf -lnetcdff
   #EXTRA_COMPILE_FLAGS =   -I${MKLROOT}/include
   EXTRA_LAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX2
   EXTRA_LAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  EXTRA_CLAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX2 -std=c++11
+  EXTRA_CLAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
   #EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11
   EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX2 -I${MKLROOT}/include
   #EXTRA_EIGEN_LINK_FLAGS =
@@ -78,6 +80,8 @@ else
   CXX = mpicxx-mpich-gcc8
   EXTRA_LAPACK_COMPILE_FLAGS = -ffree-line-length-none -O2
   EXTRA_LAPACK_LINK_FLAGS = -framework Accelerate
+  EXTRA_CLAPACK_COMPILE_FLAGS = -O2
+  EXTRA_CLAPACK_LINK_FLAGS = -framework Accelerate
   EXTRA_EIGEN_COMPILE_FLAGS = -O2
   EXTRA_EIGEN_LINK_FLAGS =
   EXTRA_BLAZE_COMPILE_FLAGS = -O2
@@ -87,13 +91,19 @@ endif
 
 .PHONY: all clean
 
-all: time_lapack time_eigen 
+all: time_lapack time_eigen time_clapack
 
 time_lapack.o: time_lapack.f90
 	$(FC) $(EXTRA_LAPACK_COMPILE_FLAGS) -c $<
 
 time_lapack: time_lapack.o
 	$(FC) -o time_lapack time_lapack.o $(EXTRA_LAPACK_LINK_FLAGS)
+
+time_clapack.o: time_clapack.cpp
+	$(CXX) $(EXTRA_CLAPACK_COMPILE_FLAGS) -c $<
+
+time_clapack: time_clapack.o
+	$(CXX) -o time_clapack time_clapack.o $(EXTRA_CLAPACK_LINK_FLAGS)
 
 time_eigen.o: time_eigen.cpp
 	$(CXX) $(EXTRA_EIGEN_COMPILE_FLAGS) -I eigen -c $<
@@ -107,8 +117,14 @@ time_blaze.o: time_blaze.cpp
 time_blaze: time_blaze.o
 	$(CXX) -o time_blaze time_blaze.o $(EXTRA_BLAZE_LINK_FLAGS)
 
+blaze_minimal: blaze_minimal.o
+	$(CXX) -o blaze_minimal blaze_minimal.o $(EXTRA_BLAZE_LINK_FLAGS)
+
+blaze_minimal.o: blaze_minimal.cpp
+	$(CXX) $(EXTRA_BLAZE_COMPILE_FLAGS) -I blaze -c $<
+
 clean:
-	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze *.a
+	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze blaze_minimal *.a
 
 test_make:
 	@echo MY_HOST is $(MY_HOST)
@@ -118,6 +134,8 @@ test_make:
 	@echo CXX is $(CXX)
 	@echo EXTRA_LAPACK_COMPILE_FLAGS is $(EXTRA_LAPACK_COMPILE_FLAGS)
 	@echo EXTRA_LAPACK_LINK_FLAGS is $(EXTRA_LAPACK_LINK_FLAGS)
+	@echo EXTRA_CLAPACK_COMPILE_FLAGS is $(EXTRA_CLAPACK_COMPILE_FLAGS)
+	@echo EXTRA_CLAPACK_LINK_FLAGS is $(EXTRA_CLAPACK_LINK_FLAGS)
 	@echo EXTRA_EIGEN_COMPILE_FLAGS is $(EXTRA_EIGEN_COMPILE_FLAGS)
 	@echo EXTRA_EIGEN_LINK_FLAGS is $(EXTRA_EIGEN_LINK_FLAGS)
 	@echo EXTRA_BLAZE_COMPILE_FLAGS is $(EXTRA_BLAZE_COMPILE_FLAGS)
