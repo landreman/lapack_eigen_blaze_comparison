@@ -91,8 +91,14 @@ time_blaze.o: time_blaze.cpp
 time_blaze: time_blaze.o
 	$(CXX) -o time_blaze time_blaze.o $(EXTRA_BLAZE_LINK_FLAGS)
 
+blaze_minimal: blaze_minimal.o
+	$(CXX) -o blaze_minimal blaze_minimal.o $(EXTRA_BLAZE_LINK_FLAGS)
+
+blaze_minimal.o: blaze_minimal.cpp
+	$(CXX) $(EXTRA_BLAZE_COMPILE_FLAGS) -I blaze -c $<
+
 clean:
-	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze *.a
+	rm -f *.o *.mod *.MOD *~ time_lapack time_eigen time_blaze blaze_minimal *.a
 
 test_make:
 	@echo MY_HOST is $(MY_HOST)

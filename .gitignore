@@ -4,3 +4,4 @@
 time_lapack
 time_eigen
 time_blaze
+blaze_minimal
