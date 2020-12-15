@@ -62,6 +62,8 @@ else
   CXX = mpicxx-mpich-gcc8
   EXTRA_LAPACK_COMPILE_FLAGS = -ffree-line-length-none -O2
   EXTRA_LAPACK_LINK_FLAGS = -framework Accelerate
+  EXTRA_CLAPACK_COMPILE_FLAGS = -O2
+  EXTRA_CLAPACK_LINK_FLAGS = -framework Accelerate
   EXTRA_EIGEN_COMPILE_FLAGS = -O2
   EXTRA_EIGEN_LINK_FLAGS =
   EXTRA_BLAZE_COMPILE_FLAGS = -O2
@@ -71,13 +73,19 @@ endif
 
 .PHONY: all clean
 
-all: time_lapack time_eigen 
+all: time_lapack time_eigen time_clapack
 
 time_lapack.o: time_lapack.f90
 	$(FC) $(EXTRA_LAPACK_COMPILE_FLAGS) -c $<
 
 time_lapack: time_lapack.o
 	$(FC) -o time_lapack time_lapack.o $(EXTRA_LAPACK_LINK_FLAGS)
+
+time_clapack.o: time_clapack.cpp
+	$(CXX) $(EXTRA_CLAPACK_COMPILE_FLAGS) -c $<
+
+time_clapack: time_clapack.o
+	$(CXX) -o time_clapack time_clapack.o $(EXTRA_CLAPACK_LINK_FLAGS)
 
 time_eigen.o: time_eigen.cpp
 	$(CXX) $(EXTRA_EIGEN_COMPILE_FLAGS) -I eigen -c $<
@@ -108,6 +116,8 @@ test_make:
 	@echo CXX is $(CXX)
 	@echo EXTRA_LAPACK_COMPILE_FLAGS is $(EXTRA_LAPACK_COMPILE_FLAGS)
 	@echo EXTRA_LAPACK_LINK_FLAGS is $(EXTRA_LAPACK_LINK_FLAGS)
+	@echo EXTRA_CLAPACK_COMPILE_FLAGS is $(EXTRA_CLAPACK_COMPILE_FLAGS)
+	@echo EXTRA_CLAPACK_LINK_FLAGS is $(EXTRA_CLAPACK_LINK_FLAGS)
 	@echo EXTRA_EIGEN_COMPILE_FLAGS is $(EXTRA_EIGEN_COMPILE_FLAGS)
 	@echo EXTRA_EIGEN_LINK_FLAGS is $(EXTRA_EIGEN_LINK_FLAGS)
 	@echo EXTRA_BLAZE_COMPILE_FLAGS is $(EXTRA_BLAZE_COMPILE_FLAGS)
