@@ -54,6 +54,22 @@ else ifeq ($(CLUSTER),DRACO)
   EXTRA_BLAZE_COMPILE_FLAGS = -std=c++11
   EXTRA_BLAZE_LINK_FLAGS =
 
+else ifeq ($(CLUSTER),RAVEN)
+  MY_HOST=raven
+  FC = mpiifort
+  CXX = mpiicpc
+  #EXTRA_COMPILE_FLAGS =  -mkl -I${NETCDF_HOME}/include
+  #EXTRA_LINK_FLAGS =   -mkl -Wl,-ydgemm_ -L${NETCDF_HOME}/lib -lnetcdf -lnetcdff
+  #EXTRA_COMPILE_FLAGS =   -I${MKLROOT}/include
+  EXTRA_LAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX512 -qopt-zmm-usage=high
+  EXTRA_LAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  #EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX512 -qopt-zmm-usage=high
+  EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX512 -qopt-zmm-usage=high -I${MKLROOT}/include
+  #EXTRA_EIGEN_LINK_FLAGS =
+  EXTRA_EIGEN_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  EXTRA_BLAZE_COMPILE_FLAGS = -std=c++11
+  EXTRA_BLAZE_LINK_FLAGS =
+
 else
   MY_HOST=macports
   #FC = gfortran-mp-8
