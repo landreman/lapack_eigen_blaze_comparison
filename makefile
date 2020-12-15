@@ -65,6 +65,8 @@ else ifeq ($(CLUSTER),RAVEN)
   #EXTRA_COMPILE_FLAGS =   -I${MKLROOT}/include
   EXTRA_LAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX512 -qopt-zmm-usage=high
   EXTRA_LAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  EXTRA_CLAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX512 -qopt-zmm-usage=high -std=c++11
+  EXTRA_CLAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
   #EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX512 -qopt-zmm-usage=high
   EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX512 -qopt-zmm-usage=high -I${MKLROOT}/include
   #EXTRA_EIGEN_LINK_FLAGS =
