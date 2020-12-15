@@ -41,10 +41,18 @@ else ifeq ($(HOSTNAME),pppl_intel)
 else ifeq ($(CLUSTER),DRACO)
   MY_HOST=draco
   FC = mpiifort
+  CXX = icpc
   #EXTRA_COMPILE_FLAGS =  -mkl -I${NETCDF_HOME}/include
   #EXTRA_LINK_FLAGS =   -mkl -Wl,-ydgemm_ -L${NETCDF_HOME}/lib -lnetcdf -lnetcdff
-  EXTRA_COMPILE_FLAGS =   -I${MKLROOT}/include -I${NETCDF_HOME}/include
-  EXTRA_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_ -L${NETCDF_HOME}/lib -lnetcdf -lnetcdff
+  #EXTRA_COMPILE_FLAGS =   -I${MKLROOT}/include
+  EXTRA_LAPACK_COMPILE_FLAGS = -O2 -xCORE-AVX2
+  EXTRA_LAPACK_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  #EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11
+  EXTRA_EIGEN_COMPILE_FLAGS = -O2 -std=c++11 -xCORE-AVX2 -I${MKLROOT}/include
+  #EXTRA_EIGEN_LINK_FLAGS =
+  EXTRA_EIGEN_LINK_FLAGS =    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -Wl,-ydgemm_
+  EXTRA_BLAZE_COMPILE_FLAGS = -std=c++11
+  EXTRA_BLAZE_LINK_FLAGS =
 
 else
   MY_HOST=macports
@@ -63,7 +71,7 @@ endif
 
 .PHONY: all clean
 
-all: time_lapack time_eigen time_blaze
+all: time_lapack time_eigen 
 
 time_lapack.o: time_lapack.f90
 	$(FC) $(EXTRA_LAPACK_COMPILE_FLAGS) -c $<
